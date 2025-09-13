@@ -1,17 +1,17 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Interview') }}: {{ $interview->title }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    <form action="{{ route('interviews.update', $interview) }}" method="POST" id="interviewForm">
-                        @csrf
-                        @method('PUT')
+@section('content')
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 bg-white border-b border-gray-200">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                    {{ __('Edit Interview') }}: {{ $interview->title }}
+                </h2>
+                
+                <form action="{{ route('interviews.update', $interview) }}" method="POST" id="interviewForm">
+                    @csrf
+                    @method('PUT')
                         
                         <div class="mb-6">
                             <label for="title" class="block text-sm font-medium text-gray-700">
@@ -171,8 +171,18 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Question Template (Hidden) -->
+<!-- Question Template (Hidden) -->
+<template id="question-template">
+    <div class="question-card bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div class="flex justify-between items-start mb-4">
+            <h4 class="text-sm font-medium text-gray-900 question-number">Question #<span></span></h4>
+            <button type="button" class="text-red-600 hover:text-red-800 remove-question">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </button>
     <template id="question-template">
         <div class="question-card bg-gray-50 p-4 rounded-lg border border-gray-200">
             <div class="flex justify-between items-start mb-4">
@@ -188,7 +198,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     {{ __('Question Text') }} <span class="text-red-500">*</span>
                 </label>
-                <textarea name="questions[{{ '{{index}}' }}][text]" class="question-text w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="2" required></textarea>
+                <textarea name="questions[{{ '__index__' }}][text]" class="question-text w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="2" required></textarea>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -196,7 +206,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         {{ __('Question Type') }} <span class="text-red-500">*</span>
                     </label>
-                    <select name="questions[{{ '{{index}}' }}][type]" class="question-type w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    <select name="questions[{{ '__index__' }}][type]" class="question-type w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <option value="text">{{ __('Text Answer') }}</option>
                         <option value="video">{{ __('Video Response') }}</option>
                         <option value="multiple_choice">{{ __('Multiple Choice') }}</option>
@@ -207,7 +217,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         {{ __('Time Limit (seconds)') }}
                     </label>
-                    <input type="number" name="questions[{{ '{{index}}' }}][time_limit]" min="30" step="30" 
+                    <input type="number" name="questions[{{ '__index__' }}][time_limit]" min="30" step="30" 
                         class="time-limit w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
             </div>
@@ -216,13 +226,13 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     {{ __('Options (one per line)') }} <span class="text-red-500">*</span>
                 </label>
-                <textarea name="questions[{{ '{{index}}' }}][options]" class="options-textarea w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="3"></textarea>
+                <textarea name="questions[{{ '__index__' }}][options]" class="options-textarea w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="3"></textarea>
             </div>
         </div>
     </template>
 
-    @push('scripts')
-    <script>
+@section('scripts')
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('questions-container');
             const addButton = document.getElementById('addQuestion');
@@ -372,18 +382,19 @@
             
             // Form validation
             const form = document.getElementById('interviewForm');
-            form.addEventListener('submit', function(e) {
-                const questions = container.querySelectorAll('.question-card');
-                if (questions.length === 0) {
-                    e.preventDefault();
-                    alert('Please add at least one question.');
-                    return false;
-                }
-                
-                // Additional validation can be added here
-                return true;
-            });
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const questions = container.querySelectorAll('.question-card');
+                    if (questions.length === 0) {
+                        e.preventDefault();
+                        alert('Please add at least one question.');
+                        return false;
+                    }
+                    
+                    // Additional validation can be added here
+                    return true;
+                });
+            }
         });
     </script>
-    @endpush
-</x-app-layout>
+@endsection

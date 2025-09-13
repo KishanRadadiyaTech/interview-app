@@ -29,9 +29,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-    // Interview Routes - Admin/Reviewer only
-    Route::middleware(['role:admin,reviewer'])->group(function () {
-        Route::prefix('interviews')->name('interviews.')->group(function () {
+    // Register role middleware
+    Route::aliasMiddleware('role', \App\Http\Middleware\RoleMiddleware::class);
+
+    // Interview Routes
+    Route::prefix('interviews')->name('interviews.')->group(function () {
+        // Public routes (all authenticated users)
+        Route::get('/', [InterviewController::class, 'index'])->name('index');
+        Route::get('/{interview}', [InterviewController::class, 'show'])->name('show');
+
+        // Admin/Reviewer only routes
+        Route::middleware(['role:admin,reviewer'])->group(function () {
             Route::get('/create', [InterviewController::class, 'create'])->name('create');
             Route::post('/', [InterviewController::class, 'store'])->name('store');
             
@@ -44,21 +52,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('/invite', [InterviewController::class, 'inviteCandidates'])->name('invite.store');
             });
         });
-    });
 
-    // Interview Routes - All authenticated users
-    Route::prefix('interviews')->name('interviews.')->group(function () {
-        Route::get('/', [InterviewController::class, 'index'])->name('index');
-        
-        // Interview-specific public routes
-        Route::prefix('{interview}')->group(function () {
-            Route::get('/', [InterviewController::class, 'show'])->name('show');
-            
-            // Candidate actions
-            Route::middleware(['role:candidate'])->group(function () {
-                Route::post('/start', [InterviewController::class, 'start'])->name('start');
-                Route::post('/{question}/answer', [InterviewController::class, 'submitAnswer'])->name('answer');
-            });
+        // Candidate-only routes
+        Route::middleware(['role:candidate'])->group(function () {
+            Route::post('{interview}/start', [InterviewController::class, 'start'])->name('start');
+            Route::post('{interview}/{question}/answer', [InterviewController::class, 'submitAnswer'])->name('answer');
         });
     });
 

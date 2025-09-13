@@ -1,33 +1,24 @@
-<x-app-layout>
-    <script>
-        // Test script to verify JavaScript is working
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Inline script loaded');
-            
-            // Test if jQuery is available
-            console.log('jQuery available:', typeof $ !== 'undefined');
-            
-            // Test button click
-            const testButton = document.getElementById('testButton');
-            if (testButton) {
-                testButton.addEventListener('click', function() {
-                    console.log('Inline test button clicked');
-                    alert('Inline JavaScript is working!');
-                });
-            }
-        });
-    </script>
-    
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create New Interview') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+@section('content')
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 bg-white border-b border-gray-200">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-6">
+                    {{ __('Create New Interview') }}
+                </h2>
+                
+                @if ($errors->any())
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
+                        <p class="font-bold">Error!</p>
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                     <form action="{{ route('interviews.store') }}" method="POST" id="interviewForm">
                         @csrf
                         
@@ -323,4 +314,5 @@
             }
         });
     </script>
-</x-app-layout>
+</div>
+@endsection

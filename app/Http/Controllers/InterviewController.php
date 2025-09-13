@@ -14,9 +14,25 @@ class InterviewController extends Controller
     /**
      * Create a new controller instance.
      */
+    /**
+     * Create a new controller instance.
+     */
     public function __construct()
     {
-        // Middleware is now handled in routes/web.php
+        // Apply auth middleware to all methods except 'show' and 'index'
+        $this->middleware('auth');
+        
+        // Use route model binding with explicit key name
+        $this->middleware(function ($request, $next) {
+            if ($interview = $request->route('interview')) {
+                $interview = Interview::findOrFail($interview);
+                $request->route()->setParameter('interview', $interview);
+            }
+            return $next($request);
+        })->except(['index', 'create', 'store']);
+        
+        // Authorize resource controller
+        $this->authorizeResource(Interview::class, 'interview');
     }
 
     public function index()
@@ -87,6 +103,9 @@ class InterviewController extends Controller
     public function show(Interview $interview)
     {
         $interview->load(['questions', 'creator', 'candidates']);
+        
+        // Check if user is authorized to view this interview
+        $this->authorize('view', $interview);
         
         if (Auth::user()->isCandidate()) {
             $userInterview = $interview->candidates()->find(Auth::id());

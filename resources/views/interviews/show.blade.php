@@ -1,40 +1,40 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ $interview->title }}
-            </h2>
-            <div class="flex space-x-2">
-                @can('update', $interview)
-                    <a href="{{ route('interviews.edit', $interview) }}" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        {{ __('Edit') }}
-                    </a>
-                    <a href="{{ route('interviews.invite', $interview) }}" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        {{ __('Invite Candidates') }}
-                    </a>
-                @endcan
-                @if(auth()->user()->isCandidate() && $interview->pivot?->status === 'in_progress')
-                    <a href="{{ route('interviews.show', $interview) }}"
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        {{ __('Continue Interview') }}
-                    </a>
-                @endif
-            </div>
-        </div>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    @if (session('success'))
-                        <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
-                            <p class="font-bold">{{ __('Success!') }}</p>
-                            <p>{{ session('success') }}</p>
-                        </div>
-                    @endif
+@section('content')
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 bg-white border-b border-gray-200">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                        {{ $interview->title }}
+                    </h2>
+                    <div class="flex space-x-2">
+                        @can('update', $interview)
+                            <a href="{{ route('interviews.edit', $interview) }}" 
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                {{ __('Edit') }}
+                            </a>
+                            <a href="{{ route('interviews.invite', $interview) }}" 
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                {{ __('Invite Candidates') }}
+                            </a>
+                        @endcan
+                        @if(auth()->user()->isCandidate() && $interview->pivot?->status === 'in_progress')
+                            <a href="{{ route('interviews.show', $interview) }}"
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                {{ __('Continue Interview') }}
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                @if (session('success'))
+                    <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+                        <p class="font-bold">{{ __('Success!') }}</p>
+                        <p>{{ session('success') }}</p>
+                    </div>
+                @endif
 
                     <div class="mb-8">
                         <h3 class="text-lg font-medium text-gray-900">{{ __('Interview Details') }}</h3>
@@ -115,4 +115,5 @@
     @if(auth()->user()->isAdmin() || (auth()->user()->isReviewer() && $interview->created_by === auth()->id()))
         @include('interviews.partials.invite-candidate-modal')
     @endif
-</x-app-layout>
+</div>
+@endsection
